@@ -8,12 +8,12 @@
   <link rel="dns-prefetch" href="http://example.com">
   <title>Frp与Proxifier配合使用 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="环境准备首先需要准备一台vps服务器，内网环境下的一台主机，自己的外网本机 客户端：部署在需要穿透的内网服务所在的机器上（需要代理出来流量的内网机器） frp客户端为frpc 服务端： 部署在具有公网 IP 的机器上 frp服务端为frps 做这个实验，首先要明白什么是正向代理与反向代理 入站反向，出站正向（通常绕过防火墙） 正向代理正向代理类似一个跳板机，代理访问外部资源（比如我们国内访问谷歌，">
+  <meta name="description" content="内网穿透的一次实现">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Frp与Proxifier配合使用">
 <meta property="og:url" content="http://example.com/2021/12/08/Frp%E4%B8%8EProxifier%E9%85%8D%E5%90%88%E4%BD%BF%E7%94%A8/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="环境准备首先需要准备一台vps服务器，内网环境下的一台主机，自己的外网本机 客户端：部署在需要穿透的内网服务所在的机器上（需要代理出来流量的内网机器） frp客户端为frpc 服务端： 部署在具有公网 IP 的机器上 frp服务端为frps 做这个实验，首先要明白什么是正向代理与反向代理 入站反向，出站正向（通常绕过防火墙） 正向代理正向代理类似一个跳板机，代理访问外部资源（比如我们国内访问谷歌，">
+<meta property="og:description" content="内网穿透的一次实现">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://gitee.com/Omoredream/images/raw/master/img/202112122101881.png">
 <meta property="og:image" content="https://gitee.com/Omoredream/images/raw/master/img/202112122105086.png">
@@ -26,7 +26,7 @@
 <meta property="og:image" content="https://gitee.com/Omoredream/images/raw/master/img/202112122105466.png">
 <meta property="og:image" content="https://gitee.com/Omoredream/images/raw/master/img/202112122102879.png">
 <meta property="article:published_time" content="2021-12-08T07:16:00.080Z">
-<meta property="article:modified_time" content="2021-12-12T13:06:35.348Z">
+<meta property="article:modified_time" content="2021-12-20T13:25:48.610Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://gitee.com/Omoredream/images/raw/master/img/202112122101881.png">
@@ -70,7 +70,9 @@
 			
 				<li><a href="/">主页</a></li>
 	        
-				<li><a href="/tags/%E9%9A%8F%E7%AC%94/">随笔</a></li>
+				<li><a href="/categories">分类</a></li>
+	        
+				<li><a href="/archives/index.html">归档</a></li>
 	        
 			</ul>
 		</nav>
@@ -85,7 +87,7 @@
     			
             
     			
-    			<a q-on="click: openSlider(e, 'aboutme')" href="javascript:void(0)">关于我</a>
+    			<a q-on="click: openSlider(e, 'aboutme')" href="javascript:void(0)">默默努力的人</a>
     			
             
 		</nav>
@@ -128,6 +130,8 @@
 			
 				
 			
+				
+			
 			
 			
 			<nav class="header-nav">
@@ -145,12 +149,14 @@
 			</nav>
 
 			<nav class="header-menu js-header-menu">
-				<ul style="width: 50%">
+				<ul style="width: 70%">
 				
 				
-					<li style="width: 50%"><a href="/">主页</a></li>
+					<li style="width: 33.333333333333336%"><a href="/">主页</a></li>
 		        
-					<li style="width: 50%"><a href="/tags/%E9%9A%8F%E7%AC%94/">随笔</a></li>
+					<li style="width: 33.333333333333336%"><a href="/categories">分类</a></li>
+		        
+					<li style="width: 33.333333333333336%"><a href="/archives/index.html">归档</a></li>
 		        
 				</ul>
 			</nav>
@@ -185,7 +191,10 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>首先需要准备一台vps服务器，内网环境下的一台主机，自己的外网本机</p>
+        <p>内网穿透的一次实现</p>
+<span id="more"></span>
+
+<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>首先需要准备一台vps服务器，内网环境下的一台主机，自己的外网本机</p>
 <p>客户端：部署在需要穿透的内网服务所在的机器上（需要代理出来流量的内网机器）</p>
 <p>frp客户端为frpc</p>
 <p>服务端： 部署在具有公网 IP 的机器上</p>
@@ -355,11 +364,15 @@
   
 <nav id="article-nav">
   
-  
-    <a href="/2021/09/11/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Hello World</div>
-      <i class="icon-circle-right"></i>
+    <a href="/2021/12/20/PIKACHU%E9%9D%B6%E5%9C%BA/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          pikachu新手靶场通关
+        
+      </div>
     </a>
+  
   
 </nav>
 
@@ -376,6 +389,19 @@
             </div>
         </div>
         
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="toc-number">1.</span> <span class="toc-text">环境准备</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%90%91%E4%BB%A3%E7%90%86"><span class="toc-number">1.1.</span> <span class="toc-text">正向代理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86"><span class="toc-number">1.2.</span> <span class="toc-text">反向代理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#frp%E4%B8%8Eproxifier"><span class="toc-number">2.</span> <span class="toc-text">frp与proxifier</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E9%83%A8%E7%BD%B2%EF%BC%88Linux-VPS%EF%BC%89"><span class="toc-number">2.1.</span> <span class="toc-text">服务端部署（Linux VPS）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%83%A8%E7%BD%B2"><span class="toc-number">2.2.</span> <span class="toc-text">客户端部署</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEproxifier"><span class="toc-number">2.3.</span> <span class="toc-text">配置proxifier</span></a></li></ol></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
         
     </div>
 </aside>
@@ -462,7 +488,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
       
         
       
-      <li style="width: 33.333333333333336%" q-on="click: openSlider(e, 'aboutme')"><a href="javascript:void(0)" q-class="active:aboutme">关于我</a></li>
+      <li style="width: 33.333333333333336%" q-on="click: openSlider(e, 'aboutme')"><a href="javascript:void(0)" q-class="active:aboutme">默默努力的人</a></li>
       
         
     </ul>
@@ -542,7 +568,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
     
     	<section class="tools-section tools-section-me" q-show="aboutme">
   	  	
-  	  		<div class="aboutme-wrap" id="js-aboutme">Doraemon&lt;br&gt;&lt;br&gt;莫忘少年凌云志，曾许人间第一流&lt;br&gt;</div>
+  	  		<div class="aboutme-wrap" id="js-aboutme">Doraemon&lt;br&gt;&lt;br&gt;每天的努力是积累，但每天的收获是支出，那我每天不断的重复练习算是积累还是支出？&lt;br&gt;</div>
   	  	
     	</section>
     
